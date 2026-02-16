@@ -1,0 +1,1 @@
+from app.sockets.game_socket import register_socket_events
