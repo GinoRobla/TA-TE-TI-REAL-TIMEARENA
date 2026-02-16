@@ -1,0 +1,26 @@
+.dashboard-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.dashboard-card {
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.profile-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.stats-section {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+}
+
+.stat-item {
+  text-align: center;
+}
