@@ -1,24 +1,33 @@
 .game-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f5f5f5;
+  text-align: center;
+  background: linear-gradient(135deg, #b71c1c, #d32f2f, #8b0000);
 }
 
-.game-card {
-  padding: 32px;
-  text-align: center;
+.game-title {
+  color: #fff;
+  font-weight: 700 !important;
+}
+
+.game-turn {
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 8px !important;
 }
 
 .board {
   display: grid;
-  grid-template-columns: repeat(3, 100px);
-  grid-template-rows: repeat(3, 100px);
-  gap: 4px;
-  margin: 0 auto;
+  grid-template-columns: repeat(3, 110px);
+  grid-template-rows: repeat(3, 110px);
+  gap: 6px;
+  margin: 16px auto;
   width: fit-content;
-  background-color: #333;
+  background: linear-gradient(135deg, #b71c1c, #8b0000);
+  padding: 6px;
+  border-radius: 12px;
 }
 
 .cell {
@@ -26,8 +35,10 @@
   justify-content: center;
   align-items: center;
   background-color: #fff;
-  width: 100px;
-  height: 100px;
+  width: 110px;
+  height: 110px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
 }
 
 .cell.clickable {
@@ -35,13 +46,58 @@
 }
 
 .cell.clickable:hover {
-  background-color: #e3f2fd;
+  background-color: #ffebee;
 }
 
 .symbol-x {
-  color: #1976d2;
+  color: #b71c1c;
+  font-weight: 700 !important;
 }
 
 .symbol-o {
-  color: #d32f2f;
+  color: #333;
+  font-weight: 700 !important;
+}
+
+/* Resultado */
+.game-result {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.result-text {
+  font-weight: 800 !important;
+  font-size: 2.5rem !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.result-win {
+  color: #a5d6a7;
+}
+
+.result-loss {
+  color: #ffcdd2;
+}
+
+.result-draw {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.lobby-btn {
+  border-radius: 30px !important;
+  padding: 12px 40px !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  background: #fff !important;
+  color: #b71c1c !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+.lobby-btn:hover {
+  background: #f5f5f5 !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
 }

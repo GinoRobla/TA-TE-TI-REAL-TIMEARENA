@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Button, Paper, Alert } from "@mui/material";
+import { Box, Typography, Button } from "@mui/material";
 import useGameStore from "../stores/gameStore";
 import useAuthStore from "../stores/authStore";
 import "./GamePage.css";
@@ -43,50 +43,50 @@ export default function GamePage() {
 
   return (
     <Box className="game-container">
-      <Paper className="game-card">
-        {/* Info de la partida */}
-        <Typography variant="h5" gutterBottom>
-          Vos ({mySymbol}) vs {opponent}
+      {/* Info de la partida */}
+      <Typography variant="h5" className="game-title">
+        Vos ({mySymbol}) vs {opponent}
+      </Typography>
+
+      {status === "playing" && (
+        <Typography variant="body1" className="game-turn">
+          {isMyTurn ? "Tu turno" : "Turno del oponente..."}
         </Typography>
+      )}
 
-        {status === "playing" && (
-          <Typography variant="body1" sx={{ mb: 2 }}>
-            {isMyTurn ? "Tu turno" : "Turno del oponente..."}
-          </Typography>
-        )}
-
-        {/* Tablero */}
-        <Box className="board">
-          {board.map((cell, index) => (
-            <Box
-              key={index}
-              className={`cell ${isMyTurn && cell === "" && status === "playing" ? "clickable" : ""}`}
-              onClick={() => handleClick(index)}
-            >
-              <Typography variant="h3" className={`symbol ${cell === "X" ? "symbol-x" : "symbol-o"}`}>
-                {cell}
-              </Typography>
-            </Box>
-          ))}
-        </Box>
-
-        {/* Resultado */}
-        {status === "finished" && (
-          <Box sx={{ mt: 2 }}>
-            <Alert severity={winnerId === user?.id ? "success" : result === "draw" ? "info" : "error"}>
-              {getResultMessage()}
-            </Alert>
-            <Button
-              variant="contained"
-              fullWidth
-              sx={{ mt: 2 }}
-              onClick={handleBackToDashboard}
-            >
-              Volver al Lobby
-            </Button>
+      {/* Tablero */}
+      <Box className="board">
+        {board.map((cell, index) => (
+          <Box
+            key={index}
+            className={`cell ${isMyTurn && cell === "" && status === "playing" ? "clickable" : ""}`}
+            onClick={() => handleClick(index)}
+          >
+            <Typography variant="h3" className={`symbol ${cell === "X" ? "symbol-x" : "symbol-o"}`}>
+              {cell}
+            </Typography>
           </Box>
-        )}
-      </Paper>
+        ))}
+      </Box>
+
+      {/* Resultado */}
+      {status === "finished" && (
+        <Box className="game-result">
+          <Typography variant="h4" className={`result-text ${
+            result === "draw" ? "result-draw" :
+            winnerId === user?.id ? "result-win" : "result-loss"
+          }`}>
+            {getResultMessage()}
+          </Typography>
+          <Button
+            variant="contained"
+            className="lobby-btn"
+            onClick={handleBackToDashboard}
+          >
+            Volver al Lobby
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 }

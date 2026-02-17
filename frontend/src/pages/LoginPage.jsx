@@ -3,6 +3,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import useAuthStore from "../stores/authStore";
+import logo from "../assets/logo-snoop.png";
 import "./LoginPage.css";
 
 export default function LoginPage() {
@@ -22,6 +23,8 @@ export default function LoginPage() {
   return (
     <Box className="login-container">
       <Paper elevation={3} className="login-card">
+        <img src={logo} alt="Snoop Consulting" className="login-logo" />
+
         <Typography variant="h4" gutterBottom>
           Ta-Te-Ti Arena
         </Typography>
