@@ -1,5 +1,4 @@
-from app.models.user import User
-from app.models.match import Match
+from app.repositories import user_repository, match_repository
 
 
 def get_user_stats(user_id):
@@ -7,32 +6,20 @@ def get_user_stats(user_id):
     Busca al usuario por ID y arma el JSON con sus stats e historial.
     Este es el formato que pide la prueba para GET /profile/stats
     """
-    user = User.objects(id=user_id).first()
+    user = user_repository.find_by_id(user_id)
 
     if not user:
         return None
 
-    # Buscar partidas terminadas donde el usuario participó
-    matches = Match.objects(
-        status="finished",
-        __raw__={
-            "$or": [
-                {"player_x": user.id},
-                {"player_o": user.id}
-            ]
-        }
-    )
+    matches = match_repository.find_finished_by_player(user)
 
-    # Armar el historial
     match_history = []
     for match in matches:
-        # Determinar quién es el oponente
         if match.player_x and str(match.player_x.id) == str(user_id):
             opponent = match.player_o.name if match.player_o else "Desconocido"
         else:
             opponent = match.player_x.name if match.player_x else "Desconocido"
 
-        # Determinar el resultado desde la perspectiva del usuario
         if match.result == "draw":
             result = "DRAW"
         elif match.winner and str(match.winner.id) == str(user_id):

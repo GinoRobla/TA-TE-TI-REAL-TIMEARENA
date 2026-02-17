@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import {
   Box, Typography, Button, Avatar, Paper,
   Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Alert, Chip,
+  TableHead, TableRow, Chip,
 } from "@mui/material";
 import useAuthStore from "../stores/authStore";
+import ErrorModal from "../components/ErrorModal";
 import useGameStore from "../stores/gameStore";
 import api from "../api/axios";
 import logoSnoop from "../assets/boton-snoop.png";
@@ -71,7 +72,7 @@ export default function DashboardPage() {
         </Button>
       </Paper>
 
-      {error && <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>}
+      <ErrorModal message={error} onClose={() => setError(null)} />
 
       {/* Stats */}
       {stats && (

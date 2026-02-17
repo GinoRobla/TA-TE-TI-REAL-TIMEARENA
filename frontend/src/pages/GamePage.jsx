@@ -12,7 +12,6 @@ export default function GamePage() {
   const opponent = useGameStore((state) => state.opponent);
   const status = useGameStore((state) => state.status);
   const result = useGameStore((state) => state.result);
-  const winnerName = useGameStore((state) => state.winnerName);
   const winnerId = useGameStore((state) => state.winnerId);
   const playMove = useGameStore((state) => state.playMove);
   const resetGame = useGameStore((state) => state.resetGame);

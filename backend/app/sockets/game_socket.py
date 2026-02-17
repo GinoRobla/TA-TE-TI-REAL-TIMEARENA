@@ -1,7 +1,6 @@
 import jwt
 from app.config import Config
-from app.models.user import User
-from app.models.match import Match
+from app.repositories import user_repository, match_repository
 from app.services.game_service import make_move
 
 waiting_player = {"sid": None, "user_id": None}  # cola de espera (1 jugador máximo)
@@ -20,29 +19,27 @@ def register_socket_events(sio):
         except jwt.InvalidTokenError:
             return False                                    # token inválido → rechazar conexión
 
-        sio.save_session(sid, {"user_id": payload["id"]})   # guardar quién es este sid
+        sio.save_session(sid, {"user_id": payload["sub"]})   # guardar quién es este sid
 
     @sio.event
     def find_match(sid):                                     # el usuario quiere jugar
         session = sio.get_session(sid)
         user_id = session["user_id"]
-        user = User.objects(id=user_id).first()
+        user = user_repository.find_by_id(user_id)
 
         if waiting_player["sid"] and waiting_player["sid"] != sid:
             # hay alguien esperando → emparejar
             opponent_sid = waiting_player["sid"]
-            opponent = User.objects(id=waiting_player["user_id"]).first()
+            opponent = user_repository.find_by_id(waiting_player["user_id"])
 
             waiting_player["sid"] = None                     # limpiar la cola
             waiting_player["user_id"] = None
 
-            match = Match(                                   # crear partida en la DB
+            match = match_repository.create(                 # crear partida en la DB
                 player_x=user,
                 player_o=opponent,
-                status="in_progress",
                 current_turn=user,
             )
-            match.save()
 
             room = str(match.id)                             # crear sala con el id de la partida
             sio.enter_room(sid, room)
@@ -76,7 +73,7 @@ def register_socket_events(sio):
         session = sio.get_session(sid)
         user_id = session["user_id"]
 
-        match = Match.objects(id=data["match_id"]).first()
+        match = match_repository.find_by_id(data["match_id"])
         if not match:
             return
 

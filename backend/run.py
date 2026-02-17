@@ -1,13 +1,10 @@
 import eventlet
-# Monkey-patch: hace que las librerías estándar de Python
-# funcionen de forma async (como necesita Socket.IO).
-# En Node no necesitás esto porque Node ya es async por naturaleza.
+
 eventlet.monkey_patch()
 
 from app import create_app
 
 # Crear la aplicación
-# En Node sería: const app = createApp()
 app = create_app()
 
 if __name__ == "__main__":

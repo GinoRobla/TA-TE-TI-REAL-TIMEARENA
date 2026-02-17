@@ -1,8 +1,9 @@
-import { Box, Typography, Paper, Alert } from "@mui/material";
+import { Box, Typography, Paper } from "@mui/material";
 import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import useAuthStore from "../stores/authStore";
+import ErrorModal from "../components/ErrorModal";
 import logo from "../assets/logo-snoop.png";
 import "./LoginPage.css";
 
@@ -33,17 +34,13 @@ export default function LoginPage() {
           Jugá en tiempo real contra otros jugadores
         </Typography>
 
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
-            {error}
-          </Alert>
-        )}
-
         <GoogleLogin
           onSuccess={handleSuccess}
           onError={() => setError("Error con Google")}
         />
       </Paper>
+
+      <ErrorModal message={error} onClose={() => setError(null)} />
     </Box>
   );
 }

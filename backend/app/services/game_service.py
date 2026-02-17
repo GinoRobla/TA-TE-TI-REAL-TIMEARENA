@@ -1,5 +1,4 @@
-from app.models.match import Match
-from app.models.user import User
+from app.repositories import user_repository, match_repository
 
 
 # Las 8 combinaciones ganadoras del ta-te-ti
@@ -70,13 +69,13 @@ def make_move(match, user_id, position):
         match.winner = winner
         match.result = "win"
         match.status = "finished"
-        match.save()
+        match_repository.save(match)
 
         # Actualizar stats
         winner.wins += 1
-        winner.save()
+        user_repository.save(winner)
         loser.losses += 1
-        loser.save()
+        user_repository.save(loser)
 
         return True, "win"
 
@@ -84,13 +83,13 @@ def make_move(match, user_id, position):
         # Empate
         match.result = "draw"
         match.status = "finished"
-        match.save()
+        match_repository.save(match)
 
         # Actualizar stats de ambos
         match.player_x.draws += 1
-        match.player_x.save()
+        user_repository.save(match.player_x)
         match.player_o.draws += 1
-        match.player_o.save()
+        user_repository.save(match.player_o)
 
         return True, "draw"
 
@@ -100,6 +99,6 @@ def make_move(match, user_id, position):
             match.current_turn = match.player_o
         else:
             match.current_turn = match.player_x
-        match.save()
+        match_repository.save(match)
 
         return True, "continue"
