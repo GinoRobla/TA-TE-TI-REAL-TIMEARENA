@@ -43,7 +43,6 @@ def get_user_stats(user_id):
         match_history.append({
             "opponent": opponent,
             "result": result,
-            "date": match.finished_at.isoformat() if match.finished_at else None,
         })
 
     return {

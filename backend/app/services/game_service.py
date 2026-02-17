@@ -1,4 +1,3 @@
-from datetime import datetime
 from app.models.match import Match
 from app.models.user import User
 
@@ -71,7 +70,6 @@ def make_move(match, user_id, position):
         match.winner = winner
         match.result = "win"
         match.status = "finished"
-        match.finished_at = datetime.utcnow()
         match.save()
 
         # Actualizar stats
@@ -86,7 +84,6 @@ def make_move(match, user_id, position):
         # Empate
         match.result = "draw"
         match.status = "finished"
-        match.finished_at = datetime.utcnow()
         match.save()
 
         # Actualizar stats de ambos

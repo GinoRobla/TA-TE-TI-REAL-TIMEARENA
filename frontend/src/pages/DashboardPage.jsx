@@ -117,7 +117,6 @@ export default function DashboardPage() {
                 <TableRow>
                   <TableCell>Oponente</TableCell>
                   <TableCell>Resultado</TableCell>
-                  <TableCell>Fecha</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -125,7 +124,6 @@ export default function DashboardPage() {
                   <TableRow key={index}>
                     <TableCell>{match.opponent}</TableCell>
                     <TableCell>{match.result}</TableCell>
-                    <TableCell>{new Date(match.date).toLocaleDateString()}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

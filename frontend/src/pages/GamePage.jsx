@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Typography, Button, Paper, Alert } from "@mui/material";
 import useGameStore from "../stores/gameStore";
@@ -12,10 +13,16 @@ export default function GamePage() {
   const status = useGameStore((state) => state.status);
   const result = useGameStore((state) => state.result);
   const winnerName = useGameStore((state) => state.winnerName);
+  const winnerId = useGameStore((state) => state.winnerId);
   const playMove = useGameStore((state) => state.playMove);
   const resetGame = useGameStore((state) => state.resetGame);
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
+
+  // Si no hay partida en curso (ej: refresh), volver al dashboard
+  useEffect(() => {
+    if (status === "idle") navigate("/dashboard");
+  }, [status]);
 
   const handleClick = (index) => {
     if (!isMyTurn || board[index] !== "" || status !== "playing") return;
@@ -30,7 +37,7 @@ export default function GamePage() {
   // Determinar mensaje de resultado
   const getResultMessage = () => {
     if (result === "draw") return "Empate!";
-    if (winnerName === user?.name) return "Ganaste!";
+    if (winnerId === user?.id) return "Ganaste!";
     return "Perdiste!";
   };
 
@@ -66,7 +73,7 @@ export default function GamePage() {
         {/* Resultado */}
         {status === "finished" && (
           <Box sx={{ mt: 2 }}>
-            <Alert severity={winnerName === user?.name ? "success" : result === "draw" ? "info" : "error"}>
+            <Alert severity={winnerId === user?.id ? "success" : result === "draw" ? "info" : "error"}>
               {getResultMessage()}
             </Alert>
             <Button

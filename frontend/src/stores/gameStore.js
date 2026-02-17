@@ -12,6 +12,7 @@ const useGameStore = create((set, get) => ({
   status: "idle", // "idle" | "waiting" | "playing" | "finished"
   result: null,
   winnerName: null,
+  winnerId: null,
 
   // Conectar al socket (se llama al entrar al dashboard)
   connectSocket: (token) => {
@@ -48,6 +49,7 @@ const useGameStore = create((set, get) => ({
         status: "finished",
         result: data.result,
         winnerName: data.winner_name || null,
+        winnerId: data.winner_id || null,
       });
     });
 
@@ -81,6 +83,7 @@ const useGameStore = create((set, get) => ({
       status: "idle",
       result: null,
       winnerName: null,
+      winnerId: null,
     });
   },
 
