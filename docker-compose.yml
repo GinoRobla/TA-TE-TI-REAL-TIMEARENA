@@ -1,0 +1,56 @@
+# docker-compose.yml: orquesta múltiples contenedores como si fueran un sistema.
+# Con un solo comando (docker compose up) levantamos:
+#   - MongoDB (base de datos)
+#   - Backend Flask (API + WebSockets)
+#   - Frontend React (servido por nginx)
+
+# Nota: necesitás un archivo .env en esta carpeta raíz con:
+#   JWT_SECRET=tu_secreto
+#   GOOGLE_CLIENT_ID=tu_client_id
+#   VITE_GOOGLE_CLIENT_ID=tu_client_id
+
+services:
+
+  # ── MongoDB ──────────────────────────────────────────────────────────────
+  mongo:
+    image: mongo:7                  # usamos la imagen oficial de MongoDB 7 (no la construimos)
+    container_name: tateti-mongo
+    ports:
+      - "27017:27017"               # host:contenedor → tu PC puede conectarse a MongoDB
+    volumes:
+      - mongo-data:/data/db         # volumen con nombre: los datos persisten aunque el contenedor se borre
+
+  # ── Backend Flask ─────────────────────────────────────────────────────────
+  backend:
+    build: ./backend                # construye la imagen usando backend/Dockerfile
+    container_name: tateti-backend
+    ports:
+      - "5000:5000"                 # exponemos Flask al host
+    environment:
+      # IMPORTANTE: usamos "mongo" como host, NO "localhost".
+      # Dentro de Docker Compose, cada servicio se comunica por su nombre.
+      - MONGO_URI=mongodb://mongo:27017/tateti
+      - JWT_SECRET=${JWT_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+    depends_on:
+      - mongo                       # Docker espera a que mongo esté listo antes de arrancar backend
+
+  # ── Frontend React ────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend           # usa frontend/Dockerfile
+      args:
+        # Vite embebe estas variables en el build (no existen en runtime).
+        # Se leen desde el .env de esta carpeta raíz.
+        VITE_API_URL: http://localhost:5000
+        VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID}
+    container_name: tateti-frontend
+    ports:
+      - "80:80"                     # la app queda en http://localhost
+    depends_on:
+      - backend
+
+# Volúmenes con nombre: Docker los administra y persisten entre reinicios.
+# Sin esto, al borrar el contenedor de mongo se pierden todos los datos.
+volumes:
+  mongo-data:

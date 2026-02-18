@@ -13,6 +13,8 @@ const useGameStore = create((set, get) => ({
   result: null,
   winnerName: null,
   winnerId: null,
+  messages: [],       // historial del chat: [{ sender: "nombre", text: "hola" }]
+  opponentLeft: false, // true cuando el oponente se desconecta durante la partida
 
   // Conectar al socket (se llama al entrar al dashboard)
   connectSocket: (token) => {
@@ -32,6 +34,8 @@ const useGameStore = create((set, get) => ({
         isMyTurn: data.is_your_turn,
         opponent: data.opponent,
         status: "playing",
+        messages: [],       // limpiar chat al empezar partida nueva
+        opponentLeft: false, // resetear si venimos de una partida anterior
       });
     });
 
@@ -53,6 +57,18 @@ const useGameStore = create((set, get) => ({
       });
     });
 
+    // El oponente se fue (salió voluntariamente o se desconectó)
+    socket.on("opponent_left", () => {
+      set({ opponentLeft: true });
+    });
+
+    // Recibir mensaje de chat: agregar al array de mensajes
+    socket.on("chat_message", (data) => {
+      set((state) => ({
+        messages: [...state.messages, data],
+      }));
+    });
+
     socket.on("error", (data) => {
       console.error("Socket error:", data.message);
     });
@@ -72,6 +88,20 @@ const useGameStore = create((set, get) => ({
     if (socket) socket.emit("play_move", { match_id: matchId, position });
   },
 
+  // Enviar mensaje al chat
+  sendMessage: (text) => {
+    const { socket, matchId } = get();
+    if (socket && text.trim()) {
+      socket.emit("chat_message", { match_id: matchId, text });
+    }
+  },
+
+  // Salir voluntariamente de la partida
+  leaveGame: () => {
+    const { socket } = get();
+    if (socket) socket.emit("leave_game");
+  },
+
   // Resetear para una nueva partida
   resetGame: () => {
     set({
@@ -84,6 +114,8 @@ const useGameStore = create((set, get) => ({
       result: null,
       winnerName: null,
       winnerId: null,
+      messages: [],
+      opponentLeft: false,
     });
   },
 

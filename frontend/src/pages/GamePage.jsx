@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Typography, Button } from "@mui/material";
 import useGameStore from "../stores/gameStore";
@@ -15,17 +15,49 @@ export default function GamePage() {
   const winnerId = useGameStore((state) => state.winnerId);
   const playMove = useGameStore((state) => state.playMove);
   const resetGame = useGameStore((state) => state.resetGame);
+  const leaveGame = useGameStore((state) => state.leaveGame);
+  const messages = useGameStore((state) => state.messages);
+  const sendMessage = useGameStore((state) => state.sendMessage);
+  const opponentLeft = useGameStore((state) => state.opponentLeft);
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
+
+  const [chatInput, setChatInput] = useState("");
+  const messagesEndRef = useRef(null);
 
   // Si no hay partida en curso (ej: refresh), volver al dashboard
   useEffect(() => {
     if (status === "idle") navigate("/dashboard");
   }, [status]);
 
+  // Advertencia del navegador si el usuario intenta recargar con partida activa
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (status === "playing") {
+        e.preventDefault();
+        // El texto no se muestra en navegadores modernos, pero el diálogo sí aparece
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [status]);
+
+  // Scroll automático al último mensaje
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   const handleClick = (index) => {
-    if (!isMyTurn || board[index] !== "" || status !== "playing") return;
+    // Bloquear si no es su turno, casilla ocupada, juego no activo, o el oponente se fue
+    if (!isMyTurn || board[index] !== "" || status !== "playing" || opponentLeft) return;
     playMove(index);
+  };
+
+  const handleLeaveGame = () => {
+    leaveGame();   // avisa al backend → backend notifica al oponente
+    resetGame();
+    navigate("/dashboard");
   };
 
   const handleBackToDashboard = () => {
@@ -33,7 +65,12 @@ export default function GamePage() {
     navigate("/dashboard");
   };
 
-  // Determinar mensaje de resultado
+  const handleSendMessage = () => {
+    if (!chatInput.trim()) return;
+    sendMessage(chatInput);
+    setChatInput("");
+  };
+
   const getResultMessage = () => {
     if (result === "draw") return "Empate!";
     if (winnerId === user?.id) return "Ganaste!";
@@ -42,15 +79,39 @@ export default function GamePage() {
 
   return (
     <Box className="game-container">
-      {/* Info de la partida */}
-      <Typography variant="h5" className="game-title">
-        Vos ({mySymbol}) vs {opponent}
-      </Typography>
+      {/* Header: título + botón salir */}
+      <Box className="game-header">
+        <Typography variant="h5" className="game-title">
+          Vos ({mySymbol}) vs {opponent}
+        </Typography>
 
-      {status === "playing" && (
+        {status === "playing" && !opponentLeft && (
+          <Button className="leave-btn" onClick={handleLeaveGame}>
+            Salir
+          </Button>
+        )}
+      </Box>
+
+      {status === "playing" && !opponentLeft && (
         <Typography variant="body1" className="game-turn">
           {isMyTurn ? "Tu turno" : "Turno del oponente..."}
         </Typography>
+      )}
+
+      {/* Banner: oponente se fue */}
+      {opponentLeft && (
+        <Box className="opponent-left-banner">
+          <Typography variant="body1" className="opponent-left-text">
+            Tu oponente salió de la partida
+          </Typography>
+          <Button
+            variant="contained"
+            className="lobby-btn"
+            onClick={handleBackToDashboard}
+          >
+            Volver al Lobby
+          </Button>
+        </Box>
       )}
 
       {/* Tablero */}
@@ -58,7 +119,7 @@ export default function GamePage() {
         {board.map((cell, index) => (
           <Box
             key={index}
-            className={`cell ${isMyTurn && cell === "" && status === "playing" ? "clickable" : ""}`}
+            className={`cell ${isMyTurn && cell === "" && status === "playing" && !opponentLeft ? "clickable" : ""}`}
             onClick={() => handleClick(index)}
           >
             <Typography variant="h3" className={`symbol ${cell === "X" ? "symbol-x" : "symbol-o"}`}>
@@ -84,6 +145,35 @@ export default function GamePage() {
           >
             Volver al Lobby
           </Button>
+        </Box>
+      )}
+
+      {/* Chat en tiempo real */}
+      {(status === "playing" || status === "finished") && (
+        <Box className="chat-container">
+          <Box className="chat-messages">
+            {messages.map((msg, i) => (
+              <Typography key={i} variant="body2" className="chat-message">
+                <span className="chat-sender">{msg.sender}:</span> {msg.text}
+              </Typography>
+            ))}
+            <div ref={messagesEndRef} />
+          </Box>
+
+          <Box className="chat-input-row">
+            <input
+              className="chat-input"
+              placeholder="Escribí un mensaje..."
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSendMessage();
+              }}
+            />
+            <Button className="chat-send-btn" onClick={handleSendMessage}>
+              Enviar
+            </Button>
+          </Box>
         </Box>
       )}
     </Box>

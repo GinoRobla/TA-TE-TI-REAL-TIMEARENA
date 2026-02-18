@@ -1,0 +1,9 @@
+# .dockerignore: le dice a Docker qué archivos NO copiar al contenedor.
+# Similar al .gitignore pero para Docker.
+# Reduce el tamaño de la imagen y evita filtrar datos sensibles.
+
+venv/           # entorno virtual de Python (no se necesita, pip instala desde requirements.txt)
+__pycache__/    # archivos compilados de Python (se generan solos)
+*.pyc           # bytecode de Python
+.env            # variables de entorno reales (se pasan por docker-compose)
+.git/           # historial de git (no necesario en la imagen)

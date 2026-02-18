@@ -45,6 +45,15 @@ def register_socket_events(sio):
             sio.enter_room(sid, room)
             sio.enter_room(opponent_sid, room)
 
+            # Guardar el match_id en la sesión de ambos para detectar desconexiones
+            current_session = sio.get_session(sid)
+            current_session["match_id"] = room
+            sio.save_session(sid, current_session)
+
+            opp_session = sio.get_session(opponent_sid)
+            opp_session["match_id"] = room
+            sio.save_session(opponent_sid, opp_session)
+
             # avisar a cada jugador con SU info
             sio.emit("match_found", {
                 "match_id": room,
@@ -106,7 +115,69 @@ def register_socket_events(sio):
             }, room=room)
 
     @sio.event
-    def disconnect(sid):                                     # el usuario se desconectó
+    def chat_message(sid, data):                             # el usuario manda un mensaje al chat
+        try:
+            session = sio.get_session(sid)
+            user_id = session["user_id"]
+
+            match_id = data.get("match_id")                  # .get() evita KeyError si falta el campo
+            text = data.get("text", "").strip()
+            if not match_id or not text:
+                return
+
+            match = match_repository.find_by_id(match_id)
+            if not match:
+                return
+
+            # Verificar que el usuario pertenece a esta partida usando to_mongo()
+            # to_mongo() devuelve los ObjectId en crudo sin necesidad de dereferenciar
+            match_raw = match.to_mongo()
+            player_x_id = str(match_raw.get("player_x", ""))
+            player_o_id = str(match_raw.get("player_o", ""))
+            if player_x_id != str(user_id) and player_o_id != str(user_id):
+                return
+
+            user = user_repository.find_by_id(user_id)
+            if not user:
+                return
+
+            room = str(match.id)
+
+            # Reenviar el mensaje a todos en la sala (ambos jugadores)
+            sio.emit("chat_message", {
+                "sender": user.name,
+                "text": text,
+            }, room=room)
+
+        except Exception as e:
+            print(f"[chat_message] Error inesperado: {e}")
+
+    @sio.event
+    def leave_game(sid):                                     # el usuario sale voluntariamente
+        try:
+            session = sio.get_session(sid)
+            match_id = session.get("match_id")
+            if match_id:
+                # Avisar al oponente que el jugador salió (skip_sid excluye al que se va)
+                sio.emit("opponent_left", {}, room=match_id, skip_sid=sid)
+                # Limpiar match_id de la sesión y salir de la sala
+                session.pop("match_id", None)
+                sio.save_session(sid, session)
+                sio.leave_room(sid, match_id)
+        except Exception as e:
+            print(f"[leave_game] Error: {e}")
+
+    @sio.event
+    def disconnect(sid):                                     # el usuario se desconectó (recarga o cierre)
+        try:
+            session = sio.get_session(sid)
+            match_id = session.get("match_id")
+            if match_id:
+                # Si tenía partida activa, avisar al oponente
+                sio.emit("opponent_left", {}, room=match_id, skip_sid=sid)
+        except Exception:
+            pass                                             # la sesión puede no existir al desconectarse
+
         if waiting_player["sid"] == sid:                     # si estaba en cola, sacarlo
             waiting_player["sid"] = None
             waiting_player["user_id"] = None
