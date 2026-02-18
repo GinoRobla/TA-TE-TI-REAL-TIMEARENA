@@ -1,0 +1,7 @@
+# .dockerignore del frontend
+
+node_modules/   # dependencias de Node (se reinstalan con npm ci)
+dist/           # carpeta de build anterior (se regenera con npm run build)
+.env            # variables de entorno reales (se pasan como build args)
+venv/           # entorno de Python que quedó acá por error
+.git/

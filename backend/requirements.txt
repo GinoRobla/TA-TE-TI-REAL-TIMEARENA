@@ -1,0 +1,9 @@
+flask==3.1.0
+flask-cors==5.0.1
+python-socketio==5.12.1
+eventlet==0.37.0
+mongoengine==0.29.1
+flask-jwt-extended==4.7.1
+google-auth==2.38.0
+requests==2.32.3
+python-dotenv==1.0.1

@@ -1,0 +1,113 @@
+.dashboard-container {
+  max-width: 650px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.dashboard-card {
+  padding: 28px;
+  margin-bottom: 20px;
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Perfil */
+.profile-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-avatar {
+  width: 80px !important;
+  height: 80px !important;
+  border: 3px solid #b71c1c;
+}
+
+.logout-btn {
+  margin-top: 12px !important;
+  color: #999 !important;
+  border-color: #ccc !important;
+  font-size: 0.75rem !important;
+}
+
+/* Stats */
+.stats-section {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+  gap: 12px;
+}
+
+.stat-item {
+  flex: 1;
+  padding: 16px 8px;
+  border-radius: 12px;
+}
+
+.stat-item h3 {
+  font-weight: 800 !important;
+  font-size: 2rem !important;
+}
+
+.stat-win {
+  background-color: #e8f5e9;
+}
+
+.stat-win h3 {
+  color: #2e7d32;
+}
+
+.stat-loss {
+  background-color: #ffebee;
+}
+
+.stat-loss h3 {
+  color: #c62828;
+}
+
+.stat-draw {
+  background-color: #f5f5f5;
+}
+
+.stat-draw h3 {
+  color: #616161;
+}
+
+/* Buscar partida */
+.find-match-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 24px 0;
+  gap: 16px;
+}
+
+.find-match-btn {
+  width: 180px !important;
+  height: 180px !important;
+  border-radius: 50% !important;
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
+  background: #b71c1c !important;
+  color: #fff !important;
+  box-shadow: 0 4px 20px rgba(183, 28, 28, 0.5) !important;
+  transition: transform 0.2s, box-shadow 0.2s !important;
+}
+
+.find-match-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 25px rgba(183, 28, 28, 0.7) !important;
+}
+
+.find-match-spinner {
+  width: 180px;
+  height: 180px;
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

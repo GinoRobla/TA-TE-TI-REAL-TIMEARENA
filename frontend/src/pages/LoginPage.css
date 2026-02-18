@@ -1,0 +1,27 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.login-card {
+  padding: 48px 40px;
+  text-align: center;
+  max-width: 420px;
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-logo {
+  width: 120px;
+  margin-bottom: 16px;
+}
+
+.login-card h4 {
+  font-weight: 700;
+  color: #b71c1c;
+}
